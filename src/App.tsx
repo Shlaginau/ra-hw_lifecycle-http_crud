@@ -1,55 +1,56 @@
-import { useState } from "react";
-import ClockList from "./components/ClockList";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import NoteList from './components/NoteList';
+import NoteForm from './components/NoteForm';
+import './App.css'; // Импортируем стили
 
-interface Clock {
+type Note = {
   id: number;
-  name: string;
-  timezone: number;
-}
+  content: string;
+};
 
-function App() {
-  const [clocks, setClocks] = useState<Clock[]>([]);
-  const [name, setName] = useState<string>("");
-  const [timezone, setTimezone] = useState<string>("");
+const App: React.FC = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
 
-  const addClock = () => {
-    if (!name || !timezone) return;
-    const newClock: Clock = {
-      id: Date.now(),
-      name: name,
-      timezone: parseFloat(timezone),
-    };
-    setClocks([...clocks, newClock]);
-    setName("");
-    setTimezone("");
+  const fetchNotes = async () => {
+    const response = await fetch('http://localhost:7070/notes');
+    const data = await response.json();
+    setNotes(data);
   };
 
-  const removeClock = (id: number) => {
-    setClocks(clocks.filter((clock) => clock.id !== id));
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  const addNote = async (content: string) => {
+    await fetch('http://localhost:7070/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 0, content }),
+    });
+    fetchNotes();
+  };
+
+  const deleteNote = async (id: number) => {
+    await fetch(`http://localhost:7070/notes/${id}`, { method: 'DELETE' });
+    fetchNotes();
+  };
+
+  const updateNotes = () => {
+    fetchNotes();
   };
 
   return (
-    <div className="App">
-      <h1>Мировые часы</h1>
-      <div className="form">
-        <input
-          type="text"
-          placeholder="Название"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Временная зона (UTC)"
-          value={timezone}
-          onChange={(e) => setTimezone(e.target.value)}
-        />
-        <button onClick={addClock}>Добавить</button>
+    <div>
+      <div className="header-container"> {}
+        <h1>Notes</h1>
+        <button className="update" onClick={updateNotes}>⟳</button> {}
       </div>
-      <ClockList clocks={clocks} removeClock={removeClock} />
+      <div className="notes-container">
+        <NoteList notes={notes} deleteNote={deleteNote} />
+      </div>
+      <NoteForm addNote={addNote} />
     </div>
   );
-}
+};
 
 export default App;

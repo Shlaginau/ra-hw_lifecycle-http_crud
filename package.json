@@ -1,7 +1,7 @@
 {
   "name": "intro",
   "private": true,
-  "homepage": "https://shlaginau.github.io/ra-hw_lifecycle-http_watches/",
+  "homepage": "https://shlaginau.github.io/ra-hw_lifecycle-http_crud/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
